@@ -44,64 +44,98 @@ function buildHtml({ recipientName = '', paymentTitle, mpesaReceipt, amount, boo
 		body {
 			margin: 0;
 			padding: 0;
-			background-color: #f4f7fc;
+			background-color: #e8f4f8;
 			font-family: 'Sono', Arial, sans-serif;
 		}
 	</style>
 </head>
-<body style="margin: 0; padding: 0; background-color: #f4f7fc; font-family: 'Sono', Arial, sans-serif;">
-	<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f4f7fc; padding: 40px 20px;">
+<body style="margin: 0; padding: 0; background-color: #e8f4f8; font-family: 'Sono', Arial, sans-serif;">
+	<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #e8f4f8; padding: 40px 20px;">
 		<tr>
 			<td align="center">
-				<!-- Main container -->
-				<table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); overflow: hidden;">
-					<!-- Header with icon and branding -->
+				<!-- Main container with dark blue border -->
+				<table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; border-radius: 20px; overflow: hidden; border: 4px solid #0437F2; box-shadow: 0 8px 32px rgba(4, 55, 242, 0.15);">
+					
+					<!-- Header with light blue to green gradient and icons -->
 					<tr>
-						<td align="center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px;">
-							<img src="cid:mystay-icon" alt="MyStay App Icon" style="width: 80px; height: 80px; border-radius: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);"/>
-							<h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; font-family: 'Sono', Arial, sans-serif;">MyStay App</h1>
+						<td align="center" style="background: linear-gradient(135deg, #d4ebf7 0%, #c8e6d5 100%); padding: 40px 30px 30px 30px; position: relative;">
+							<!-- Success Checkmark Circle -->
+							<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto 20px;">
+								<tr>
+									<td align="center" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); width: 100px; height: 100px; border-radius: 50%; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);">
+										<img src="cid:checkmark-icon" alt="Success" style="width: 60px; height: 60px; margin-top: 20px;"/>
+									</td>
+								</tr>
+							</table>
+							
+							<!-- MyStay Branding -->
+							<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto;">
+								<tr>
+									<td align="center">
+										<img src="cid:mystay-icon" alt="MyStay App Icon" style="width: 48px; height: 48px; border-radius: 10px; vertical-align: middle; margin-right: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);"/>
+										<span style="font-size: 26px; font-weight: 700; color: #0437F2; font-family: 'Sono', Arial, sans-serif; vertical-align: middle;">MyStay App</span>
+									</td>
+								</tr>
+							</table>
 						</td>
 					</tr>
 					
-					<!-- Main content -->
+					<!-- Success Message Banner -->
 					<tr>
-						<td style="padding: 40px 30px;">
-							<h2 style="margin: 0 0 12px 0; font-size: 24px; font-weight: 600; color: #1a202c; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(paymentTitle)}</h2>
-							<p style="margin: 0 0 24px 0; font-size: 16px; color: #4a5568; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">
+						<td align="center" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); padding: 16px 30px;">
+							<h2 style="margin: 0; font-size: 22px; font-weight: 700; color: #ffffff; font-family: 'Sono', Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">✓ Payment Successful</h2>
+						</td>
+					</tr>
+					
+					<!-- Main content with light blue-green gradient -->
+					<tr>
+						<td style="background: linear-gradient(180deg, #e0f2fe 0%, #d1fae5 100%); padding: 40px 30px;">
+							<h3 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 600; color: #0437F2; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(paymentTitle)}</h3>
+							<p style="margin: 0 0 24px 0; font-size: 16px; color: #1e40af; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">
 								Hi <strong>${escapeHtml(recipientName || 'there')}</strong>,
 							</p>
-							<p style="margin: 0 0 32px 0; font-size: 16px; color: #4a5568; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">
-								Thank you! We've successfully received your payment. Here are your payment details:
+							<p style="margin: 0 0 32px 0; font-size: 15px; color: #166534; line-height: 1.7; font-family: 'Sono', Arial, sans-serif;">
+								Great news! Your payment has been successfully processed. Thank you for choosing MyStay App. Below are your payment details:
 							</p>
 							
-							<!-- Payment details card -->
-							<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f7fafc; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
+							<!-- Payment details card with white background -->
+							<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 2px solid #0437F2; box-shadow: 0 4px 12px rgba(4, 55, 242, 0.1);">
 								<tr>
-									<td style="padding: 20px 24px;">
+									<td style="padding: 0;">
+										<!-- Details header -->
 										<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
 											<tr>
-												<td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
-													<span style="font-size: 14px; font-weight: 600; color: #718096; font-family: 'Sono', Arial, sans-serif;">Amount</span>
+												<td style="background: linear-gradient(90deg, #0437F2 0%, #0284c7 100%); padding: 12px 24px;">
+													<span style="font-size: 15px; font-weight: 700; color: #ffffff; font-family: 'Sono', Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">Payment Details</span>
 												</td>
-												<td align="right" style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
-													<span style="font-size: 18px; font-weight: 700; color: #2d3748; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(String(amount))}</span>
+											</tr>
+										</table>
+										
+										<!-- Details content -->
+										<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="padding: 24px;">
+											<tr>
+												<td style="padding: 14px 0; border-bottom: 1px solid #bfdbfe;">
+													<span style="font-size: 14px; font-weight: 600; color: #1e40af; font-family: 'Sono', Arial, sans-serif;">💰 Amount Paid</span>
+												</td>
+												<td align="right" style="padding: 14px 0; border-bottom: 1px solid #bfdbfe;">
+													<span style="font-size: 20px; font-weight: 700; color: #10b981; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(String(amount))}</span>
 												</td>
 											</tr>
 											<tr>
-												<td style="padding: 12px 0; ${bookingId ? 'border-bottom: 1px solid #e2e8f0;' : ''}">
-													<span style="font-size: 14px; font-weight: 600; color: #718096; font-family: 'Sono', Arial, sans-serif;">M-Pesa Receipt</span>
+												<td style="padding: 14px 0; ${bookingId ? 'border-bottom: 1px solid #bfdbfe;' : ''}">
+													<span style="font-size: 14px; font-weight: 600; color: #1e40af; font-family: 'Sono', Arial, sans-serif;">📱 M-Pesa Receipt</span>
 												</td>
-												<td align="right" style="padding: 12px 0; ${bookingId ? 'border-bottom: 1px solid #e2e8f0;' : ''}">
-													<span style="font-size: 16px; font-weight: 600; color: ${mpesaReceipt ? '#2d3748' : '#cbd5e0'}; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(mpesaReceipt || 'Processing...')}</span>
+												<td align="right" style="padding: 14px 0; ${bookingId ? 'border-bottom: 1px solid #bfdbfe;' : ''}">
+													<span style="font-size: 16px; font-weight: 600; color: #0437F2; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(mpesaReceipt || 'Processing...')}</span>
 												</td>
 											</tr>
 											${bookingId ? `
 											<tr>
-												<td style="padding: 12px 0;">
-													<span style="font-size: 14px; font-weight: 600; color: #718096; font-family: 'Sono', Arial, sans-serif;">Booking ID</span>
+												<td style="padding: 14px 0;">
+													<span style="font-size: 14px; font-weight: 600; color: #1e40af; font-family: 'Sono', Arial, sans-serif;">🏠 Booking ID</span>
 												</td>
-												<td align="right" style="padding: 12px 0;">
-													<span style="font-size: 16px; font-weight: 600; color: #2d3748; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(bookingId)}</span>
+												<td align="right" style="padding: 14px 0;">
+													<span style="font-size: 16px; font-weight: 600; color: #0437F2; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(bookingId)}</span>
 												</td>
 											</tr>
 											` : ''}
@@ -111,27 +145,39 @@ function buildHtml({ recipientName = '', paymentTitle, mpesaReceipt, amount, boo
 							</table>
 							
 							${extraMessage ? `
-							<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 24px; background-color: #eff6ff; border-radius: 8px; border-left: 4px solid #667eea;">
+							<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 24px; background: linear-gradient(135deg, #dbeafe 0%, #fef3c7 100%); border-radius: 10px; border: 2px solid #0437F2; border-left: 6px solid #10b981;">
 								<tr>
-									<td style="padding: 16px 20px;">
-										<p style="margin: 0; font-size: 14px; color: #2d3748; line-height: 1.5; font-family: 'Sono', Arial, sans-serif;">
-											<strong style="color: #667eea;">Note:</strong> ${escapeHtml(extraMessage)}
+									<td style="padding: 18px 24px;">
+										<p style="margin: 0; font-size: 14px; color: #1e3a8a; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">
+											<strong style="color: #0437F2; font-size: 15px;">📌 Important Note:</strong><br/>
+											<span style="margin-top: 6px; display: inline-block;">${escapeHtml(extraMessage)}</span>
 										</p>
 									</td>
 								</tr>
 							</table>
 							` : ''}
+							
+							<!-- Call to action / Next steps -->
+							<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 32px;">
+								<tr>
+									<td align="center" style="padding: 20px; background: linear-gradient(135deg, #0437F2 0%, #0284c7 100%); border-radius: 10px; box-shadow: 0 4px 12px rgba(4, 55, 242, 0.3);">
+										<p style="margin: 0; font-size: 14px; color: #ffffff; line-height: 1.6; font-family: 'Sono', Arial, sans-serif; font-weight: 500;">
+											🎉 You're all set! We look forward to hosting you at MyStay.
+										</p>
+									</td>
+								</tr>
+							</table>
 						</td>
 					</tr>
 					
 					<!-- Footer -->
 					<tr>
-						<td style="background-color: #f7fafc; padding: 24px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-							<p style="margin: 0; font-size: 13px; color: #718096; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">
-								This is an automated message from MyStay App.<br/>
-								If you have any questions, please contact our support team.
+						<td style="background-color: #f0f9ff; padding: 28px 30px; text-align: center; border-top: 2px solid #bfdbfe;">
+							<p style="margin: 0 0 8px 0; font-size: 13px; color: #1e40af; line-height: 1.6; font-family: 'Sono', Arial, sans-serif; font-weight: 500;">
+								This is an automated confirmation from MyStay App.<br/>
+								Need help? Contact our support team anytime.
 							</p>
-							<p style="margin: 12px 0 0 0; font-size: 12px; color: #a0aec0; font-family: 'Sono', Arial, sans-serif;">
+							<p style="margin: 8px 0 0 0; font-size: 12px; color: #0437F2; font-family: 'Sono', Arial, sans-serif; font-weight: 600;">
 								© ${new Date().getFullYear()} MyStay. All rights reserved.
 							</p>
 						</td>
@@ -333,11 +379,18 @@ app.post('/api/v1/email/send', async (req, res) => {
 			subject: payment_title,
 			text,
 			html,
-			attachments: [{
-				filename: 'mystay-icon.png',
-				path: path.join(__dirname, 'mystay-icon.png'),
-				cid: 'mystay-icon' // Content-ID for embedding in HTML
-			}]
+			attachments: [
+				{
+					filename: 'mystay-icon.png',
+					path: path.join(__dirname, 'mystay-icon.png'),
+					cid: 'mystay-icon' // Content-ID for embedding in HTML
+				},
+				{
+					filename: 'checkmark.png',
+					path: path.join(__dirname, 'checkmark.png'),
+					cid: 'checkmark-icon' // Content-ID for embedding in HTML
+				}
+			]
 		};
 
 		// Send email
