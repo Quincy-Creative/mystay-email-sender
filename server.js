@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const nodemailer = require('nodemailer');
 const { createClient } = require('@supabase/supabase-js');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
@@ -33,21 +34,113 @@ const supabase = createClient(SUPABASE_URL || '', SUPABASE_SERVICE_ROLE_KEY || '
 // html builder
 function buildHtml({ recipientName = '', paymentTitle, mpesaReceipt, amount, bookingId, extraMessage }) {
 	return `<!doctype html>
-  <html>
-  <head><meta charset="utf-8"/></head>
-  <body style="font-family: Arial, sans-serif; color: #111; line-height:1.4;">
-    <h2 style="color:#1a73e8;">${escapeHtml(paymentTitle)}</h2>
-    <p>Hi ${escapeHtml(recipientName || 'there')},</p>
-    <p>Thanks — we've received your payment. Details below:</p>
-    <table style="border-collapse:collapse; width:100%; max-width:600px;">
-      <tr><td style="padding:8px; font-weight:600;">Amount</td><td style="padding:8px;">${escapeHtml(String(amount))}</td></tr>
-      <tr><td style="padding:8px; font-weight:600;">Mpesa Receipt</td><td style="padding:8px;">${escapeHtml(mpesaReceipt ?? '-')}</td></tr>
-      ${bookingId ? `<tr><td style="padding:8px; font-weight:600;">Booking ID</td><td style="padding:8px;">${escapeHtml(bookingId)}</td></tr>` : ''}
-    </table>
-    ${extraMessage ? `<p style="margin-top:16px;"><strong>Note:</strong> ${escapeHtml(extraMessage)}</p>` : ''}
-    <p style="margin-top:20px;color:#666;font-size:12px;">This is an automated message from MyStay.</p>
-  </body>
-  </html>`;
+				<html>
+				<head>
+					<meta charset="utf-8"/>
+					<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+					<link href="https://fonts.googleapis.com/css2?family=Sono:wght@400;500;600;700&display=swap" rel="stylesheet">
+					<style>
+						body {
+							margin: 0;
+							padding: 0;
+							background-color: #f4f7fc;
+							font-family: 'Sono', Arial, sans-serif;
+						}
+					</style>
+				</head>
+				<body style="margin: 0; padding: 0; background-color: #f4f7fc; font-family: 'Sono', Arial, sans-serif;">
+					<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f4f7fc; padding: 40px 20px;">
+						<tr>
+							<td align="center">
+								<!-- Main container -->
+								<table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); overflow: hidden;">
+									<!-- Header with icon and branding -->
+									<tr>
+										<td align="center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px;">
+											<img src="cid:mystay-icon" alt="MyStay App Icon" style="width: 80px; height: 80px; border-radius: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);"/>
+											<h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; font-family: 'Sono', Arial, sans-serif;">MyStay App</h1>
+										</td>
+									</tr>
+									
+									<!-- Main content -->
+									<tr>
+										<td style="padding: 40px 30px;">
+											<h2 style="margin: 0 0 12px 0; font-size: 24px; font-weight: 600; color: #1a202c; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(paymentTitle)}</h2>
+											<p style="margin: 0 0 24px 0; font-size: 16px; color: #4a5568; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">
+												Hi <strong>${escapeHtml(recipientName || 'there')}</strong>,
+											</p>
+											<p style="margin: 0 0 32px 0; font-size: 16px; color: #4a5568; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">
+												Thank you! We've successfully received your payment. Here are your payment details:
+											</p>
+											
+											<!-- Payment details card -->
+											<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f7fafc; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
+												<tr>
+													<td style="padding: 20px 24px;">
+														<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+															<tr>
+																<td style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+																	<span style="font-size: 14px; font-weight: 600; color: #718096; font-family: 'Sono', Arial, sans-serif;">Amount</span>
+																</td>
+																<td align="right" style="padding: 12px 0; border-bottom: 1px solid #e2e8f0;">
+																	<span style="font-size: 18px; font-weight: 700; color: #2d3748; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(String(amount))}</span>
+																</td>
+															</tr>
+															<tr>
+																<td style="padding: 12px 0; ${bookingId ? 'border-bottom: 1px solid #e2e8f0;' : ''}">
+																	<span style="font-size: 14px; font-weight: 600; color: #718096; font-family: 'Sono', Arial, sans-serif;">M-Pesa Receipt</span>
+																</td>
+																<td align="right" style="padding: 12px 0; ${bookingId ? 'border-bottom: 1px solid #e2e8f0;' : ''}">
+																	<span style="font-size: 16px; font-weight: 600; color: #2d3748; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(mpesaReceipt ?? '-')}</span>
+																</td>
+															</tr>
+															${bookingId ? `
+															<tr>
+																<td style="padding: 12px 0;">
+																	<span style="font-size: 14px; font-weight: 600; color: #718096; font-family: 'Sono', Arial, sans-serif;">Booking ID</span>
+																</td>
+																<td align="right" style="padding: 12px 0;">
+																	<span style="font-size: 16px; font-weight: 600; color: #2d3748; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(bookingId)}</span>
+																</td>
+															</tr>
+															` : ''}
+														</table>
+													</td>
+												</tr>
+											</table>
+											
+											${extraMessage ? `
+											<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 24px; background-color: #fff5f5; border-radius: 8px; border-left: 4px solid #667eea;">
+												<tr>
+													<td style="padding: 16px 20px;">
+														<p style="margin: 0; font-size: 14px; color: #2d3748; line-height: 1.5; font-family: 'Sono', Arial, sans-serif;">
+															<strong style="color: #667eea;">Note:</strong> ${escapeHtml(extraMessage)}
+														</p>
+													</td>
+												</tr>
+											</table>
+											` : ''}
+										</td>
+									</tr>
+									
+									<!-- Footer -->
+									<tr>
+										<td style="background-color: #f7fafc; padding: 24px 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+											<p style="margin: 0; font-size: 13px; color: #718096; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">
+												This is an automated message from MyStay App.<br/>
+												If you have any questions, please contact our support team.
+											</p>
+											<p style="margin: 12px 0 0 0; font-size: 12px; color: #a0aec0; font-family: 'Sono', Arial, sans-serif;">
+												© ${new Date().getFullYear()} MyStay. All rights reserved.
+											</p>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</body>
+				</html>`;
 }
 
 function escapeHtml(s) {
@@ -176,7 +269,12 @@ app.post('/api/v1/email/send', async (req, res) => {
 			to: targetEmail,
 			subject: payment_title,
 			text,
-			html
+			html,
+			attachments: [{
+				filename: 'mystay-icon.png',
+				path: path.join(__dirname, 'mystay-icon.png'),
+				cid: 'mystay-icon' // Content-ID for embedding in HTML
+			}]
 		};
 
 		const info = await transporter.sendMail(mailOptions);
