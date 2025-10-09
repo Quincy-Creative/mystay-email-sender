@@ -32,8 +32,20 @@ if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
 // Create supabase client using service role key (server-side)
 const supabase = createClient(SUPABASE_URL || '', SUPABASE_SERVICE_ROLE_KEY || '');
 
-// HTML email builder
+// HTML email builder - Works for payments, refunds, and all transaction types
 function buildHtml({ recipientName = '', paymentTitle, mpesaReceipt, amount, bookingId, extraMessage }) {
+	// Detect if this is a refund based on the title
+	const isRefund = paymentTitle && (
+		paymentTitle.toLowerCase().includes('refund') ||
+		paymentTitle.toLowerCase().includes('reversal') ||
+		paymentTitle.toLowerCase().includes('reimbursement')
+	);
+	
+	// Determine transaction label
+	const transactionLabel = isRefund ? 'Transaction Details' : 'Payment Details';
+	const amountLabel = isRefund ? '💵 Refund Amount' : '💰 Amount Paid';
+	const bannerText = isRefund ? '✓ Refund Processed' : '✓ Transaction Successful';
+	
 	return `<!doctype html>
 <html>
 <head>
@@ -58,7 +70,7 @@ function buildHtml({ recipientName = '', paymentTitle, mpesaReceipt, amount, boo
 					
 					<!-- Header with light blue to green gradient and icons -->
 					<tr>
-						<td align="center" style="background: linear-gradient(135deg, #d4ebf7 0%, #c8e6d5 100%); padding: 40px 30px 30px 30px; position: relative;">
+						<td align="center" style="background: linear-gradient(135deg, #d4ebf7 0%, #c8e6d5 100%); padding: 40px 30px 30px 30px;">
 							<!-- Success Checkmark Circle -->
 							<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto 20px;">
 								<tr>
@@ -83,59 +95,56 @@ function buildHtml({ recipientName = '', paymentTitle, mpesaReceipt, amount, boo
 					<!-- Success Message Banner -->
 					<tr>
 						<td align="center" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); padding: 16px 30px;">
-							<h2 style="margin: 0; font-size: 22px; font-weight: 700; color: #ffffff; font-family: 'Sono', Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">✓ Payment Successful</h2>
+							<h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #ffffff; font-family: 'Sono', Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">${bannerText}</h2>
 						</td>
 					</tr>
 					
 					<!-- Main content with light blue-green gradient -->
 					<tr>
 						<td style="background: linear-gradient(180deg, #e0f2fe 0%, #d1fae5 100%); padding: 40px 30px;">
-							<h3 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 600; color: #0437F2; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(paymentTitle)}</h3>
-							<p style="margin: 0 0 24px 0; font-size: 16px; color: #1e40af; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">
+							<h3 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 600; color: #0437F2; font-family: 'Sono', Arial, sans-serif; text-align: center;">${escapeHtml(paymentTitle)}</h3>
+							
+							<p style="margin: 0 0 16px 0; font-size: 15px; color: #1e40af; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">
 								Hi <strong>${escapeHtml(recipientName || 'there')}</strong>,
 							</p>
-							<p style="margin: 0 0 32px 0; font-size: 15px; color: #166534; line-height: 1.7; font-family: 'Sono', Arial, sans-serif;">
-								Great news! Your payment has been successfully processed. Thank you for choosing MyStay App. Below are your payment details:
+							<p style="margin: 0 0 32px 0; font-size: 14px; color: #166534; line-height: 1.7; font-family: 'Sono', Arial, sans-serif;">
+								Thank you for using MyStay App. Your transaction has been processed successfully. Below are the details:
 							</p>
 							
-							<!-- Payment details card with white background -->
+							<!-- Transaction details card with white background -->
 							<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 2px solid #0437F2; box-shadow: 0 4px 12px rgba(4, 55, 242, 0.1);">
 								<tr>
 									<td style="padding: 0;">
 										<!-- Details header -->
 										<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
 											<tr>
-												<td style="background: linear-gradient(90deg, #0437F2 0%, #0284c7 100%); padding: 12px 24px;">
-													<span style="font-size: 15px; font-weight: 700; color: #ffffff; font-family: 'Sono', Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">Payment Details</span>
+												<td style="background: linear-gradient(90deg, #0437F2 0%, #0284c7 100%); padding: 14px 24px;">
+													<span style="font-size: 14px; font-weight: 700; color: #ffffff; font-family: 'Sono', Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">${transactionLabel}</span>
 												</td>
 											</tr>
 										</table>
 										
 										<!-- Details content -->
-										<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="padding: 24px;">
+										<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
 											<tr>
-												<td style="padding: 14px 0; border-bottom: 1px solid #bfdbfe;">
-													<span style="font-size: 14px; font-weight: 600; color: #1e40af; font-family: 'Sono', Arial, sans-serif;">💰 Amount Paid</span>
-												</td>
-												<td align="right" style="padding: 14px 0; border-bottom: 1px solid #bfdbfe;">
-													<span style="font-size: 20px; font-weight: 700; color: #10b981; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(String(amount))}</span>
+												<td style="padding: 16px 24px; border-bottom: 1px solid #e0f2fe;">
+													<span style="display: block; font-size: 13px; font-weight: 600; color: #1e40af; font-family: 'Sono', Arial, sans-serif; margin-bottom: 4px;">${amountLabel}</span>
+													<span style="display: block; font-size: 22px; font-weight: 700; color: #10b981; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(String(amount))}</span>
 												</td>
 											</tr>
+											${mpesaReceipt ? `
 											<tr>
-												<td style="padding: 14px 0; ${bookingId ? 'border-bottom: 1px solid #bfdbfe;' : ''}">
-													<span style="font-size: 14px; font-weight: 600; color: #1e40af; font-family: 'Sono', Arial, sans-serif;">📱 M-Pesa Receipt</span>
-												</td>
-												<td align="right" style="padding: 14px 0; ${bookingId ? 'border-bottom: 1px solid #bfdbfe;' : ''}">
-													<span style="font-size: 16px; font-weight: 600; color: #0437F2; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(mpesaReceipt || 'Processing...')}</span>
+												<td style="padding: 16px 24px; ${bookingId ? 'border-bottom: 1px solid #e0f2fe;' : ''}">
+													<span style="display: block; font-size: 13px; font-weight: 600; color: #1e40af; font-family: 'Sono', Arial, sans-serif; margin-bottom: 4px;">📱 M-Pesa Receipt</span>
+													<span style="display: block; font-size: 15px; font-weight: 600; color: #0437F2; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(mpesaReceipt)}</span>
 												</td>
 											</tr>
+											` : ''}
 											${bookingId ? `
 											<tr>
-												<td style="padding: 14px 0;">
-													<span style="font-size: 14px; font-weight: 600; color: #1e40af; font-family: 'Sono', Arial, sans-serif;">🏠 Booking ID</span>
-												</td>
-												<td align="right" style="padding: 14px 0;">
-													<span style="font-size: 16px; font-weight: 600; color: #0437F2; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(bookingId)}</span>
+												<td style="padding: 16px 24px;">
+													<span style="display: block; font-size: 13px; font-weight: 600; color: #1e40af; font-family: 'Sono', Arial, sans-serif; margin-bottom: 4px;">🏠 Booking Reference</span>
+													<span style="display: block; font-size: 15px; font-weight: 600; color: #0437F2; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(bookingId)}</span>
 												</td>
 											</tr>
 											` : ''}
@@ -148,21 +157,21 @@ function buildHtml({ recipientName = '', paymentTitle, mpesaReceipt, amount, boo
 							<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 24px; background: linear-gradient(135deg, #dbeafe 0%, #fef3c7 100%); border-radius: 10px; border: 2px solid #0437F2; border-left: 6px solid #10b981;">
 								<tr>
 									<td style="padding: 18px 24px;">
-										<p style="margin: 0; font-size: 14px; color: #1e3a8a; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">
-											<strong style="color: #0437F2; font-size: 15px;">📌 Important Note:</strong><br/>
-											<span style="margin-top: 6px; display: inline-block;">${escapeHtml(extraMessage)}</span>
+										<p style="margin: 0; font-size: 13px; color: #1e3a8a; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">
+											<strong style="color: #0437F2; font-size: 14px;">📌 Important Note:</strong><br/>
+											<span style="margin-top: 6px; display: inline-block; font-size: 13px;">${escapeHtml(extraMessage)}</span>
 										</p>
 									</td>
 								</tr>
 							</table>
 							` : ''}
 							
-							<!-- Call to action / Next steps -->
+							<!-- Call to action -->
 							<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 32px;">
 								<tr>
-									<td align="center" style="padding: 20px; background: linear-gradient(135deg, #0437F2 0%, #0284c7 100%); border-radius: 10px; box-shadow: 0 4px 12px rgba(4, 55, 242, 0.3);">
-										<p style="margin: 0; font-size: 14px; color: #ffffff; line-height: 1.6; font-family: 'Sono', Arial, sans-serif; font-weight: 500;">
-											🎉 You're all set! We look forward to hosting you at MyStay.
+									<td align="center" style="padding: 18px 24px; background: linear-gradient(135deg, #0437F2 0%, #0284c7 100%); border-radius: 10px; box-shadow: 0 4px 12px rgba(4, 55, 242, 0.3);">
+										<p style="margin: 0; font-size: 13px; color: #ffffff; line-height: 1.6; font-family: 'Sono', Arial, sans-serif; font-weight: 500;">
+											${isRefund ? '💙 Thank you for your understanding. We look forward to serving you again!' : '🎉 You\'re all set! We look forward to hosting you at MyStay.'}
 										</p>
 									</td>
 								</tr>
@@ -173,11 +182,11 @@ function buildHtml({ recipientName = '', paymentTitle, mpesaReceipt, amount, boo
 					<!-- Footer -->
 					<tr>
 						<td style="background-color: #f0f9ff; padding: 28px 30px; text-align: center; border-top: 2px solid #bfdbfe;">
-							<p style="margin: 0 0 8px 0; font-size: 13px; color: #1e40af; line-height: 1.6; font-family: 'Sono', Arial, sans-serif; font-weight: 500;">
+							<p style="margin: 0 0 8px 0; font-size: 12px; color: #1e40af; line-height: 1.6; font-family: 'Sono', Arial, sans-serif; font-weight: 500;">
 								This is an automated confirmation from MyStay App.<br/>
 								Need help? Contact our support team anytime.
 							</p>
-							<p style="margin: 8px 0 0 0; font-size: 12px; color: #0437F2; font-family: 'Sono', Arial, sans-serif; font-weight: 600;">
+							<p style="margin: 8px 0 0 0; font-size: 11px; color: #0437F2; font-family: 'Sono', Arial, sans-serif; font-weight: 600;">
 								© ${new Date().getFullYear()} MyStay. All rights reserved.
 							</p>
 						</td>
