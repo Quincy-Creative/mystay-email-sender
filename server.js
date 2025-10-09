@@ -204,7 +204,7 @@ function escapeHtml(s) {
 function createTransporter() {
 	const port = SMTP_PORT ? Number(SMTP_PORT) : 465;
 	const secure = port === 465;
-	return nodemailer.createTransporter({
+	return nodemailer.createTransport({
 		host: SMTP_HOST,
 		port,
 		secure,
