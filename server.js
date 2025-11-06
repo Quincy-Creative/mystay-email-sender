@@ -645,14 +645,19 @@ app.post('/api/v1/email/host/send', async (req, res) => {
 			emailType: email_type
 		});
 
-		// Build plain text version
-		const subject = email_type === 'published' 
-			? `Your listing '${listing_name}' has been published`
-			: `Your listing '${listing_name}' has been submitted`;
+		// Build plain text version for all email types, including 'rejected'
+		let subject, text;
 
-		const text = email_type === 'published'
-			? `Hi ${finalHostName || 'there'},\n\nWe are pleased to inform you that your submission '${listing_name}' was just published on our app. Thank you.`
-			: `Hi ${finalHostName || 'there'},\n\nThank you for submitting your listing '${listing_name}'.`;
+		if (email_type === 'published') {
+			subject = `Your listing '${listing_name}' has been published`;
+			text = `Hi ${finalHostName || 'there'},\n\nWe are pleased to inform you that your submission '${listing_name}' was just published on our app. Thank you.`;
+		} else if (email_type === 'submitted') {
+			subject = `Your listing '${listing_name}' has been submitted`;
+			text = `Hi ${finalHostName || 'there'},\n\nThank you for submitting your listing '${listing_name}'.`;
+		} else if (email_type === 'rejected') {
+			subject = `Your listing '${listing_name}' was not approved`;
+			text = `Hi ${finalHostName || 'there'},\n\nWe're sorry to inform you that your listing '${listing_name}' was not approved after review. If you'd like more information or wish to try again, please contact our support team.`;
+		}
 
 		// Create transporter
 		const transporter = createTransporter();
