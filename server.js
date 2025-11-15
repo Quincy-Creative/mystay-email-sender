@@ -171,7 +171,7 @@ function buildHtml({ recipientName = '', paymentTitle, mpesaReceipt, amount, boo
 									<tr>
 										<td align="center" style="padding: 18px 24px; background: linear-gradient(135deg, #0437F2 0%, #0284c7 100%); border-radius: 10px; box-shadow: 0 4px 12px rgba(4, 55, 242, 0.3);">
 											<p style="margin: 0; font-size: 13px; color: #ffffff; line-height: 1.6; font-family: 'Sono', Arial, sans-serif; font-weight: 500;">
-												${isRefund ? '💙 Thank you for your understanding. We look forward to serving you again!' : '🎉 You\'re all set! We look forward to hosting you at MyStay.'}
+												${isRefund ? '💙 Thank you for your understanding. We look forward to serving you again!' : '🎉 You\'re all set! Happy hosting.'}
 											</p>
 										</td>
 									</tr>
