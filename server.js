@@ -199,18 +199,48 @@ function buildHtml({ recipientName = '', paymentTitle, mpesaReceipt, amount, boo
 </html>`;
 }
 
-// HTML email builder for host notifications (listing submission/published/rejected)
-function buildHostHtml({ hostName = '', listingName, emailType = 'submitted', rejectionReason = null }) {
+// HTML email builder for host notifications (listing submission/published/rejected/verified/verification_rejected)
+function buildHostHtml({ hostName = '', listingName, emailType = 'submitted', rejectionReason = null, verificationRejectionReason = null }) {
 	const isPublished = emailType === 'published';
 	const isRejected = emailType === 'rejected';
 	const isSubmitted = emailType === 'submitted';
+	const isVerified = emailType === 'verified';
+	const isVerificationRejected = emailType === 'verification_rejected';
 	
 	// Determine banner text and styling based on email type
-	const bannerText = isPublished ? '✓ Listing Published' : isRejected ? '⚠ Listing Not Approved' : '✓ Listing Submitted';
-	const bannerColor = isRejected ? 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(90deg, #10b981 0%, #059669 100%)';
-	const iconEmoji = isPublished ? '🎉' : isRejected ? '❌' : '📝';
-	const iconBgColor = isRejected ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
-	const iconShadow = isRejected ? 'rgba(239, 68, 68, 0.4)' : 'rgba(16, 185, 129, 0.4)';
+	let bannerText, bannerColor, iconEmoji, iconBgColor, iconShadow;
+	
+	if (isVerified) {
+		bannerText = '✓ Host Verified';
+		bannerColor = 'linear-gradient(90deg, #10b981 0%, #059669 100%)';
+		iconEmoji = '✅';
+		iconBgColor = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+		iconShadow = 'rgba(16, 185, 129, 0.4)';
+	} else if (isVerificationRejected) {
+		bannerText = '⚠ Verification Not Approved';
+		bannerColor = 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)';
+		iconEmoji = '❌';
+		iconBgColor = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+		iconShadow = 'rgba(239, 68, 68, 0.4)';
+	} else if (isPublished) {
+		bannerText = '✓ Listing Published';
+		bannerColor = 'linear-gradient(90deg, #10b981 0%, #059669 100%)';
+		iconEmoji = '🎉';
+		iconBgColor = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+		iconShadow = 'rgba(16, 185, 129, 0.4)';
+	} else if (isRejected) {
+		bannerText = '⚠ Listing Not Approved';
+		bannerColor = 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)';
+		iconEmoji = '❌';
+		iconBgColor = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
+		iconShadow = 'rgba(239, 68, 68, 0.4)';
+	} else {
+		bannerText = '✓ Listing Submitted';
+		bannerColor = 'linear-gradient(90deg, #10b981 0%, #059669 100%)';
+		iconEmoji = '📝';
+		iconBgColor = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+		iconShadow = 'rgba(16, 185, 129, 0.4)';
+	}
 	
 	return `<!doctype html>
 <html>
@@ -241,8 +271,10 @@ function buildHostHtml({ hostName = '', listingName, emailType = 'submitted', re
 								<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto 20px;">
 									<tr>
 										<td align="center" style="background: ${iconBgColor}; width: 100px; height: 100px; border-radius: 50%; box-shadow: 0 6px 20px ${iconShadow};">
-											${isRejected ? `
+											${isRejected || isVerificationRejected ? `
 											<span style="display: inline-block; font-size: 50px; margin-top: 25px;">❌</span>
+											` : isVerified ? `
+											<span style="display: inline-block; font-size: 50px; margin-top: 25px;">✅</span>
 											` : `
 											<img src="cid:checkmark-icon" alt="Success" style="width: 60px; height: 60px; margin-top: 20px;"/>
 											`}
@@ -276,7 +308,18 @@ function buildHostHtml({ hostName = '', listingName, emailType = 'submitted', re
 									Hi <strong>${escapeHtml(hostName || 'there')}</strong>,
 								</p>
 								
-								${isPublished ? `
+								${isVerified ? `
+								<p style="margin: 0 0 32px 0; font-size: 14px; color: #166534; line-height: 1.7; font-family: 'Sono', Arial, sans-serif;">
+									Congratulations! Your host account has been <strong style="color: #0437F2;">successfully verified</strong>. You can now start creating and managing your listings on MyStay App.
+								</p>
+								<p style="margin: 0 0 32px 0; font-size: 14px; color: #166534; line-height: 1.7; font-family: 'Sono', Arial, sans-serif;">
+									Welcome to the MyStay community! We're excited to have you as part of our platform.
+								</p>
+								` : isVerificationRejected ? `
+								<p style="margin: 0 0 24px 0; font-size: 14px; color: #991b1b; line-height: 1.7; font-family: 'Sono', Arial, sans-serif;">
+									We're sorry to inform you that your <strong style="color: #0437F2;">host verification request</strong> was not approved after review.
+								</p>
+								` : isPublished ? `
 								<p style="margin: 0 0 32px 0; font-size: 14px; color: #166534; line-height: 1.7; font-family: 'Sono', Arial, sans-serif;">
 									We are pleased to inform you that your submission <strong style="color: #0437F2;">'${escapeHtml(listingName)}'</strong> was just published on our app. Thank you.
 								</p>
@@ -290,6 +333,43 @@ function buildHostHtml({ hostName = '', listingName, emailType = 'submitted', re
 								</p>
 								`}
 								
+								${isVerified || isVerificationRejected ? `
+								<!-- Verification details card -->
+								<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 2px solid #0437F2; box-shadow: 0 4px 12px rgba(4, 55, 242, 0.1);">
+									<tr>
+										<td style="padding: 0;">
+											<!-- Details header -->
+											<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+												<tr>
+													<td style="background: linear-gradient(90deg, #0437F2 0%, #0284c7 100%); padding: 14px 24px;">
+														<span style="font-size: 14px; font-weight: 700; color: #ffffff; font-family: 'Sono', Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">${isVerified ? 'Verification Status' : 'Verification Information'}</span>
+													</td>
+												</tr>
+											</table>
+											
+											<!-- Details content -->
+											<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+												${isVerified ? `
+												<tr>
+													<td style="padding: 20px 24px;">
+														<span style="display: block; font-size: 13px; font-weight: 600; color: #1e40af; font-family: 'Sono', Arial, sans-serif; margin-bottom: 8px;">✅ Account Status</span>
+														<span style="display: block; font-size: 18px; font-weight: 700; color: #10b981; font-family: 'Sono', Arial, sans-serif;">Verified</span>
+													</td>
+												</tr>
+												` : ''}
+												${isVerificationRejected && verificationRejectionReason ? `
+												<tr>
+													<td style="padding: 20px 24px;">
+														<span style="display: block; font-size: 13px; font-weight: 600; color: #991b1b; font-family: 'Sono', Arial, sans-serif; margin-bottom: 8px;">📋 Rejection Reason</span>
+														<span style="display: block; font-size: 14px; color: #7f1d1d; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(verificationRejectionReason)}</span>
+													</td>
+												</tr>
+												` : ''}
+											</table>
+										</td>
+									</tr>
+								</table>
+								` : `
 								<!-- Listing details card -->
 								<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 2px solid #0437F2; box-shadow: 0 4px 12px rgba(4, 55, 242, 0.1);">
 									<tr>
@@ -323,15 +403,16 @@ function buildHostHtml({ hostName = '', listingName, emailType = 'submitted', re
 										</td>
 									</tr>
 								</table>
+								`}
 								
-								${isRejected ? `
+								${isRejected || isVerificationRejected ? `
 								<!-- Rejection notice box -->
 								<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 24px; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-radius: 10px; border: 2px solid #ef4444; border-left: 6px solid #dc2626;">
 									<tr>
 										<td style="padding: 18px 24px;">
 											<p style="margin: 0; font-size: 13px; color: #991b1b; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">
 												<strong style="color: #dc2626; font-size: 14px;">💡 Next Steps:</strong><br/>
-												<span style="margin-top: 6px; display: inline-block; font-size: 13px;">If you'd like more information or wish to resubmit your listing with corrections, please contact our support team. We're here to help!</span>
+												<span style="margin-top: 6px; display: inline-block; font-size: 13px;">${isVerificationRejected ? 'If you\'d like more information or wish to resubmit your verification request with corrections, please contact our support team. We\'re here to help!' : 'If you\'d like more information or wish to resubmit your listing with corrections, please contact our support team. We\'re here to help!'}</span>
 											</p>
 										</td>
 									</tr>
@@ -341,9 +422,9 @@ function buildHostHtml({ hostName = '', listingName, emailType = 'submitted', re
 								<!-- Call to action -->
 								<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 32px;">
 									<tr>
-										<td align="center" style="padding: 18px 24px; background: ${isRejected ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #0437F2 0%, #0284c7 100%)'}; border-radius: 10px; box-shadow: 0 4px 12px ${isRejected ? 'rgba(239, 68, 68, 0.3)' : 'rgba(4, 55, 242, 0.3)'};">
+										<td align="center" style="padding: 18px 24px; background: ${isRejected || isVerificationRejected ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #0437F2 0%, #0284c7 100%)'}; border-radius: 10px; box-shadow: 0 4px 12px ${isRejected || isVerificationRejected ? 'rgba(239, 68, 68, 0.3)' : 'rgba(4, 55, 242, 0.3)'};">
 											<p style="margin: 0; font-size: 13px; color: #ffffff; line-height: 1.6; font-family: 'Sono', Arial, sans-serif; font-weight: 500;">
-												${isPublished ? '🎊 Congratulations! Your listing is now live and visible to guests.' : isRejected ? '💙 We appreciate your understanding. Please contact support if you have any questions.' : '⏳ Your listing is under review. We\'ll notify you once it\'s published.'}
+												${isVerified ? '🎉 Welcome to MyStay! You can now start creating your first listing and begin hosting guests.' : isVerificationRejected ? '💙 We appreciate your understanding. Please contact support if you have any questions.' : isPublished ? '🎊 Congratulations! Your listing is now live and visible to guests.' : isRejected ? '💙 We appreciate your understanding. Please contact support if you have any questions.' : '⏳ Your listing is under review. We\'ll notify you once it\'s published.'}
 											</p>
 										</td>
 									</tr>
@@ -608,9 +689,10 @@ app.post('/api/v1/email/send', async (req, res) => {
  *   host_id,                      // optional (uuid to lookup host email and name)
  *   host_email,                   // optional (if provided, used directly)
  *   host_name,                    // optional (if provided, used; otherwise looked up)
- *   listing_name,                // required - name of the listing
- *   email_type,                   // required - 'submitted', 'published', or 'rejected'
- *   rejection_reason              // optional - required if email_type is 'rejected'
+ *   listing_name,                // required for listing emails, optional for verification emails
+ *   email_type,                   // required - 'submitted', 'published', 'rejected', 'verified', or 'verification_rejected'
+ *   rejection_reason,             // optional - required if email_type is 'rejected'
+ *   verification_rejection_reason // optional - required if email_type is 'verification_rejected'
  * }
  */
 app.post('/api/v1/email/host/send', async (req, res) => {
@@ -622,22 +704,34 @@ app.post('/api/v1/email/host/send', async (req, res) => {
 			host_name,
 			listing_name,
 			email_type,
-			rejection_reason
+			rejection_reason,
+			verification_rejection_reason
 		} = body;
 
 		// Validate required fields
-		if (!listing_name || !email_type) {
+		const isVerificationEmail = email_type === 'verified' || email_type === 'verification_rejected';
+		const isListingEmail = email_type === 'submitted' || email_type === 'published' || email_type === 'rejected';
+		
+		if (!email_type) {
 			return res.status(400).json({
 				success: false,
-				error: 'Missing required fields: listing_name and email_type'
+				error: 'Missing required field: email_type'
+			});
+		}
+
+		if (isListingEmail && !listing_name) {
+			return res.status(400).json({
+				success: false,
+				error: 'Missing required field: listing_name (required for listing emails)'
 			});
 		}
 
 		// Validate email_type
-		if (email_type !== 'submitted' && email_type !== 'published' && email_type !== 'rejected') {
+		const validEmailTypes = ['submitted', 'published', 'rejected', 'verified', 'verification_rejected'];
+		if (!validEmailTypes.includes(email_type)) {
 			return res.status(400).json({
 				success: false,
-				error: 'email_type must be either "submitted", "published", or "rejected"'
+				error: `email_type must be one of: ${validEmailTypes.join(', ')}`
 			});
 		}
 
@@ -646,6 +740,14 @@ app.post('/api/v1/email/host/send', async (req, res) => {
 			return res.status(400).json({
 				success: false,
 				error: 'rejection_reason is required when email_type is "rejected"'
+			});
+		}
+
+		// Validate verification_rejection_reason if email_type is 'verification_rejected'
+		if (email_type === 'verification_rejected' && !verification_rejection_reason) {
+			return res.status(400).json({
+				success: false,
+				error: 'verification_rejection_reason is required when email_type is "verification_rejected"'
 			});
 		}
 
@@ -681,20 +783,22 @@ app.post('/api/v1/email/host/send', async (req, res) => {
 		console.log('Sending host email to:', {
 			email: targetEmail,
 			name: finalHostName || '(no name)',
-			listing_name: listing_name,
+			listing_name: listing_name || '(N/A - verification email)',
 			email_type: email_type,
-			rejection_reason: email_type === 'rejected' ? (rejection_reason || '(not provided)') : '(N/A)'
+			rejection_reason: email_type === 'rejected' ? (rejection_reason || '(not provided)') : '(N/A)',
+			verification_rejection_reason: email_type === 'verification_rejected' ? (verification_rejection_reason || '(not provided)') : '(N/A)'
 		});
 
 		// Build HTML email
 		const html = buildHostHtml({
 			hostName: finalHostName,
-			listingName: listing_name,
+			listingName: listing_name || '',
 			emailType: email_type,
-			rejectionReason: rejection_reason || null
+			rejectionReason: rejection_reason || null,
+			verificationRejectionReason: verification_rejection_reason || null
 		});
 
-		// Build plain text version for all email types, including 'rejected'
+		// Build plain text version for all email types
 		let subject, text;
 
 		if (email_type === 'published') {
@@ -706,6 +810,12 @@ app.post('/api/v1/email/host/send', async (req, res) => {
 		} else if (email_type === 'rejected') {
 			subject = `Your listing '${listing_name}' was not approved`;
 			text = `Hi ${finalHostName || 'there'},\n\nWe're sorry to inform you that your listing '${listing_name}' was not approved after review.\n\nReason: ${rejection_reason}\n\nIf you'd like more information or wish to try again, please contact our support team.`;
+		} else if (email_type === 'verified') {
+			subject = `Your host account has been verified`;
+			text = `Hi ${finalHostName || 'there'},\n\nCongratulations! Your host account has been successfully verified. You can now start creating and managing your listings on MyStay App.\n\nWelcome to the MyStay community!`;
+		} else if (email_type === 'verification_rejected') {
+			subject = `Host verification not approved`;
+			text = `Hi ${finalHostName || 'there'},\n\nWe're sorry to inform you that your host verification request was not approved.\n\nReason: ${verification_rejection_reason}\n\nIf you'd like more information or wish to resubmit your verification, please contact our support team.`;
 		}
 
 		// Create transporter
