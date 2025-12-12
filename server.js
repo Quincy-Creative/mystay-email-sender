@@ -199,11 +199,18 @@ function buildHtml({ recipientName = '', paymentTitle, mpesaReceipt, amount, boo
 </html>`;
 }
 
-// HTML email builder for host notifications (listing submission/published)
-function buildHostHtml({ hostName = '', listingName, emailType = 'submitted' }) {
+// HTML email builder for host notifications (listing submission/published/rejected)
+function buildHostHtml({ hostName = '', listingName, emailType = 'submitted', rejectionReason = null }) {
 	const isPublished = emailType === 'published';
-	const bannerText = isPublished ? '✓ Listing Published' : '✓ Listing Submitted';
-	const iconEmoji = isPublished ? '🎉' : '📝';
+	const isRejected = emailType === 'rejected';
+	const isSubmitted = emailType === 'submitted';
+	
+	// Determine banner text and styling based on email type
+	const bannerText = isPublished ? '✓ Listing Published' : isRejected ? '⚠ Listing Not Approved' : '✓ Listing Submitted';
+	const bannerColor = isRejected ? 'linear-gradient(90deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(90deg, #10b981 0%, #059669 100%)';
+	const iconEmoji = isPublished ? '🎉' : isRejected ? '❌' : '📝';
+	const iconBgColor = isRejected ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+	const iconShadow = isRejected ? 'rgba(239, 68, 68, 0.4)' : 'rgba(16, 185, 129, 0.4)';
 	
 	return `<!doctype html>
 <html>
@@ -230,11 +237,15 @@ function buildHostHtml({ hostName = '', listingName, emailType = 'submitted' }) 
 						<!-- Header with light blue to green gradient and icons -->
 						<tr>
 							<td align="center" style="background: linear-gradient(135deg, #d4ebf7 0%, #c8e6d5 100%); padding: 40px 30px 30px 30px;">
-								<!-- Success Checkmark Circle -->
+								<!-- Status Icon Circle -->
 								<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto 20px;">
 									<tr>
-										<td align="center" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); width: 100px; height: 100px; border-radius: 50%; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);">
+										<td align="center" style="background: ${iconBgColor}; width: 100px; height: 100px; border-radius: 50%; box-shadow: 0 6px 20px ${iconShadow};">
+											${isRejected ? `
+											<span style="display: inline-block; font-size: 50px; margin-top: 25px;">❌</span>
+											` : `
 											<img src="cid:checkmark-icon" alt="Success" style="width: 60px; height: 60px; margin-top: 20px;"/>
+											`}
 										</td>
 									</tr>
 								</table>
@@ -251,9 +262,9 @@ function buildHostHtml({ hostName = '', listingName, emailType = 'submitted' }) 
 							</td>
 						</tr>
 						
-						<!-- Success Message Banner -->
+						<!-- Status Message Banner -->
 						<tr>
-							<td align="center" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); padding: 16px 30px;">
+							<td align="center" style="background: ${bannerColor}; padding: 16px 30px;">
 								<h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #ffffff; font-family: 'Sono', Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">${bannerText}</h2>
 							</td>
 						</tr>
@@ -268,6 +279,10 @@ function buildHostHtml({ hostName = '', listingName, emailType = 'submitted' }) 
 								${isPublished ? `
 								<p style="margin: 0 0 32px 0; font-size: 14px; color: #166534; line-height: 1.7; font-family: 'Sono', Arial, sans-serif;">
 									We are pleased to inform you that your submission <strong style="color: #0437F2;">'${escapeHtml(listingName)}'</strong> was just published on our app. Thank you.
+								</p>
+								` : isRejected ? `
+								<p style="margin: 0 0 24px 0; font-size: 14px; color: #991b1b; line-height: 1.7; font-family: 'Sono', Arial, sans-serif;">
+									We're sorry to inform you that your listing <strong style="color: #0437F2;">'${escapeHtml(listingName)}'</strong> was not approved after review.
 								</p>
 								` : `
 								<p style="margin: 0 0 32px 0; font-size: 14px; color: #166534; line-height: 1.7; font-family: 'Sono', Arial, sans-serif;">
@@ -291,22 +306,44 @@ function buildHostHtml({ hostName = '', listingName, emailType = 'submitted' }) 
 											<!-- Details content -->
 											<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
 												<tr>
-													<td style="padding: 20px 24px;">
+													<td style="padding: 20px 24px; ${isRejected ? 'border-bottom: 1px solid #fee2e2;' : ''}">
 														<span style="display: block; font-size: 13px; font-weight: 600; color: #1e40af; font-family: 'Sono', Arial, sans-serif; margin-bottom: 8px;">${iconEmoji} Listing Name</span>
 														<span style="display: block; font-size: 18px; font-weight: 700; color: #0437F2; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(listingName)}</span>
 													</td>
 												</tr>
+												${isRejected && rejectionReason ? `
+												<tr>
+													<td style="padding: 20px 24px;">
+														<span style="display: block; font-size: 13px; font-weight: 600; color: #991b1b; font-family: 'Sono', Arial, sans-serif; margin-bottom: 8px;">📋 Rejection Reason</span>
+														<span style="display: block; font-size: 14px; color: #7f1d1d; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(rejectionReason)}</span>
+													</td>
+												</tr>
+												` : ''}
 											</table>
 										</td>
 									</tr>
 								</table>
 								
+								${isRejected ? `
+								<!-- Rejection notice box -->
+								<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 24px; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-radius: 10px; border: 2px solid #ef4444; border-left: 6px solid #dc2626;">
+									<tr>
+										<td style="padding: 18px 24px;">
+											<p style="margin: 0; font-size: 13px; color: #991b1b; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">
+												<strong style="color: #dc2626; font-size: 14px;">💡 Next Steps:</strong><br/>
+												<span style="margin-top: 6px; display: inline-block; font-size: 13px;">If you'd like more information or wish to resubmit your listing with corrections, please contact our support team. We're here to help!</span>
+											</p>
+										</td>
+									</tr>
+								</table>
+								` : ''}
+								
 								<!-- Call to action -->
 								<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 32px;">
 									<tr>
-										<td align="center" style="padding: 18px 24px; background: linear-gradient(135deg, #0437F2 0%, #0284c7 100%); border-radius: 10px; box-shadow: 0 4px 12px rgba(4, 55, 242, 0.3);">
+										<td align="center" style="padding: 18px 24px; background: ${isRejected ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #0437F2 0%, #0284c7 100%)'}; border-radius: 10px; box-shadow: 0 4px 12px ${isRejected ? 'rgba(239, 68, 68, 0.3)' : 'rgba(4, 55, 242, 0.3)'};">
 											<p style="margin: 0; font-size: 13px; color: #ffffff; line-height: 1.6; font-family: 'Sono', Arial, sans-serif; font-weight: 500;">
-												${isPublished ? '🎊 Congratulations! Your listing is now live and visible to guests.' : '⏳ Your listing is under review. We\'ll notify you once it\'s published.'}
+												${isPublished ? '🎊 Congratulations! Your listing is now live and visible to guests.' : isRejected ? '💙 We appreciate your understanding. Please contact support if you have any questions.' : '⏳ Your listing is under review. We\'ll notify you once it\'s published.'}
 											</p>
 										</td>
 									</tr>
@@ -572,7 +609,8 @@ app.post('/api/v1/email/send', async (req, res) => {
  *   host_email,                   // optional (if provided, used directly)
  *   host_name,                    // optional (if provided, used; otherwise looked up)
  *   listing_name,                // required - name of the listing
- *   email_type                    // required - 'submitted' or 'published'
+ *   email_type,                   // required - 'submitted', 'published', or 'rejected'
+ *   rejection_reason              // optional - required if email_type is 'rejected'
  * }
  */
 app.post('/api/v1/email/host/send', async (req, res) => {
@@ -583,7 +621,8 @@ app.post('/api/v1/email/host/send', async (req, res) => {
 			host_email,
 			host_name,
 			listing_name,
-			email_type
+			email_type,
+			rejection_reason
 		} = body;
 
 		// Validate required fields
@@ -595,10 +634,18 @@ app.post('/api/v1/email/host/send', async (req, res) => {
 		}
 
 		// Validate email_type
-		if (email_type !== 'submitted' && email_type !== 'published') {
+		if (email_type !== 'submitted' && email_type !== 'published' && email_type !== 'rejected') {
 			return res.status(400).json({
 				success: false,
-				error: 'email_type must be either "submitted" or "published"'
+				error: 'email_type must be either "submitted", "published", or "rejected"'
+			});
+		}
+
+		// Validate rejection_reason if email_type is 'rejected'
+		if (email_type === 'rejected' && !rejection_reason) {
+			return res.status(400).json({
+				success: false,
+				error: 'rejection_reason is required when email_type is "rejected"'
 			});
 		}
 
@@ -635,14 +682,16 @@ app.post('/api/v1/email/host/send', async (req, res) => {
 			email: targetEmail,
 			name: finalHostName || '(no name)',
 			listing_name: listing_name,
-			email_type: email_type
+			email_type: email_type,
+			rejection_reason: email_type === 'rejected' ? (rejection_reason || '(not provided)') : '(N/A)'
 		});
 
 		// Build HTML email
 		const html = buildHostHtml({
 			hostName: finalHostName,
 			listingName: listing_name,
-			emailType: email_type
+			emailType: email_type,
+			rejectionReason: rejection_reason || null
 		});
 
 		// Build plain text version for all email types, including 'rejected'
@@ -656,7 +705,7 @@ app.post('/api/v1/email/host/send', async (req, res) => {
 			text = `Hi ${finalHostName || 'there'},\n\nThank you for submitting your listing '${listing_name}'.`;
 		} else if (email_type === 'rejected') {
 			subject = `Your listing '${listing_name}' was not approved`;
-			text = `Hi ${finalHostName || 'there'},\n\nWe're sorry to inform you that your listing '${listing_name}' was not approved after review. If you'd like more information or wish to try again, please contact our support team.`;
+			text = `Hi ${finalHostName || 'there'},\n\nWe're sorry to inform you that your listing '${listing_name}' was not approved after review.\n\nReason: ${rejection_reason}\n\nIf you'd like more information or wish to try again, please contact our support team.`;
 		}
 
 		// Create transporter
