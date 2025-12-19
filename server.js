@@ -452,6 +452,184 @@ function buildHostHtml({ hostName = '', listingName, emailType = 'submitted', re
 </html>`;
 }
 
+// HTML email builder for host promotion payment confirmation
+function buildPromotionPaymentHtml({ hostName = '', promotionDetails = {} }) {
+	const {
+		package_name = '',
+		amount = 0,
+		duration_months = 1,
+		expiry_date = '',
+		listings = '',
+		mpesa_receipt = '',
+		listings_count = 0
+	} = promotionDetails;
+
+	return `<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<link href="https://fonts.googleapis.com/css2?family=Sono:wght@400;500;600;700&display=swap" rel="stylesheet">
+		<style>
+			body {
+				margin: 0;
+				padding: 0;
+				background-color: #e8f4f8;
+				font-family: 'Sono', Arial, sans-serif;
+			}
+		</style>
+	</head>
+	<body style="margin: 0; padding: 0; background-color: #e8f4f8; font-family: 'Sono', Arial, sans-serif;">
+		<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #e8f4f8; padding: 40px 20px;">
+			<tr>
+				<td align="center">
+					<!-- Main container with dark blue border -->
+					<table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; border-radius: 20px; overflow: hidden; border: 4px solid #0437F2; box-shadow: 0 8px 32px rgba(4, 55, 242, 0.15);">
+						
+						<!-- Header with gradient and premium icon -->
+						<tr>
+							<td align="center" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #d4ebf7 100%); padding: 40px 30px 30px 30px;">
+								<!-- Premium Star Icon Circle -->
+								<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto 20px;">
+									<tr>
+										<td align="center" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); width: 100px; height: 100px; border-radius: 50%; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);">
+											<span style="display: inline-block; font-size: 50px; margin-top: 25px;">⭐</span>
+										</td>
+									</tr>
+								</table>
+								
+								<!-- MyStay Branding -->
+								<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto;">
+									<tr>
+										<td align="center">
+											<img src="cid:mystay-icon" alt="MyStay App Icon" style="width: 48px; height: 48px; border-radius: 10px; vertical-align: middle; margin-right: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);"/>
+											<span style="font-size: 26px; font-weight: 700; color: #0437F2; font-family: 'Sono', Arial, sans-serif; vertical-align: middle;">MyStay App</span>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						
+						<!-- Success Message Banner -->
+						<tr>
+							<td align="center" style="background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); padding: 16px 30px;">
+								<h2 style="margin: 0; font-size: 20px; font-weight: 700; color: #ffffff; font-family: 'Sono', Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">✓ Promotion Payment Confirmed</h2>
+							</td>
+						</tr>
+						
+						<!-- Main content -->
+						<tr>
+							<td style="background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 50%, #e0f2fe 100%); padding: 40px 30px;">
+								<p style="margin: 0 0 20px 0; font-size: 15px; color: #1e40af; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">
+									Hi <strong>${escapeHtml(hostName || 'there')}</strong>,
+								</p>
+								<p style="margin: 0 0 32px 0; font-size: 14px; color: #92400e; line-height: 1.7; font-family: 'Sono', Arial, sans-serif;">
+									Thank you for upgrading to the <strong style="color: #d97706;">${escapeHtml(package_name)}</strong> promotion package! Your payment has been successfully processed. Your listings are now boosted and will receive enhanced visibility.
+								</p>
+								
+								<!-- Package details card -->
+								<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 2px solid #f59e0b; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);">
+									<tr>
+										<td style="padding: 0;">
+											<!-- Details header -->
+											<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+												<tr>
+													<td style="background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%); padding: 14px 24px;">
+														<span style="font-size: 14px; font-weight: 700; color: #ffffff; font-family: 'Sono', Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.5px;">⭐ Promotion Package Details</span>
+													</td>
+												</tr>
+											</table>
+											
+											<!-- Details content -->
+											<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+												<tr>
+													<td style="padding: 16px 24px; border-bottom: 1px solid #fef3c7;">
+														<span style="display: block; font-size: 13px; font-weight: 600; color: #92400e; font-family: 'Sono', Arial, sans-serif; margin-bottom: 4px;">🏆 Package</span>
+														<span style="display: block; font-size: 20px; font-weight: 700; color: #d97706; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(package_name)}</span>
+													</td>
+												</tr>
+												<tr>
+													<td style="padding: 16px 24px; border-bottom: 1px solid #fef3c7;">
+														<span style="display: block; font-size: 13px; font-weight: 600; color: #92400e; font-family: 'Sono', Arial, sans-serif; margin-bottom: 4px;">💰 Amount Paid</span>
+														<span style="display: block; font-size: 22px; font-weight: 700; color: #10b981; font-family: 'Sono', Arial, sans-serif;">KES ${escapeHtml(String(amount))}</span>
+													</td>
+												</tr>
+												${mpesa_receipt ? `
+												<tr>
+													<td style="padding: 16px 24px; border-bottom: 1px solid #fef3c7;">
+														<span style="display: block; font-size: 13px; font-weight: 600; color: #92400e; font-family: 'Sono', Arial, sans-serif; margin-bottom: 4px;">📱 M-Pesa Receipt</span>
+														<span style="display: block; font-size: 15px; font-weight: 600; color: #0437F2; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(mpesa_receipt)}</span>
+													</td>
+												</tr>
+												` : ''}
+												<tr>
+													<td style="padding: 16px 24px; border-bottom: 1px solid #fef3c7;">
+														<span style="display: block; font-size: 13px; font-weight: 600; color: #92400e; font-family: 'Sono', Arial, sans-serif; margin-bottom: 4px;">⏱️ Duration</span>
+														<span style="display: block; font-size: 15px; font-weight: 600; color: #0437F2; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(String(duration_months))} month${duration_months > 1 ? 's' : ''}</span>
+													</td>
+												</tr>
+												<tr>
+													<td style="padding: 16px 24px; border-bottom: 1px solid #fef3c7;">
+														<span style="display: block; font-size: 13px; font-weight: 600; color: #92400e; font-family: 'Sono', Arial, sans-serif; margin-bottom: 4px;">📅 Expires On</span>
+														<span style="display: block; font-size: 15px; font-weight: 600; color: #0437F2; font-family: 'Sono', Arial, sans-serif;">${escapeHtml(expiry_date)}</span>
+													</td>
+												</tr>
+												<tr>
+													<td style="padding: 16px 24px;">
+														<span style="display: block; font-size: 13px; font-weight: 600; color: #92400e; font-family: 'Sono', Arial, sans-serif; margin-bottom: 4px;">🏠 Promoted Listings (${escapeHtml(String(listings_count))})</span>
+														<span style="display: block; font-size: 14px; font-weight: 500; color: #0437F2; font-family: 'Sono', Arial, sans-serif; line-height: 1.5;">${escapeHtml(listings)}</span>
+													</td>
+												</tr>
+											</table>
+										</td>
+									</tr>
+								</table>
+								
+								<!-- Benefits notice -->
+								<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 24px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 10px; border: 2px solid #f59e0b; border-left: 6px solid #d97706;">
+									<tr>
+										<td style="padding: 18px 24px;">
+											<p style="margin: 0; font-size: 13px; color: #92400e; line-height: 1.6; font-family: 'Sono', Arial, sans-serif;">
+												<strong style="color: #d97706; font-size: 14px;">🚀 Your Promotion Benefits:</strong><br/>
+												<span style="margin-top: 6px; display: inline-block; font-size: 13px;">Your listings will appear at the top of search results, get featured on the homepage, and receive a premium badge to attract more guests!</span>
+											</p>
+										</td>
+									</tr>
+								</table>
+								
+								<!-- Call to action -->
+								<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 32px;">
+									<tr>
+										<td align="center" style="padding: 18px 24px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 10px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);">
+											<p style="margin: 0; font-size: 13px; color: #ffffff; line-height: 1.6; font-family: 'Sono', Arial, sans-serif; font-weight: 500;">
+												🎉 Congratulations on your upgrade! Your promoted listings are now live and reaching more guests.
+											</p>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						
+						<!-- Footer -->
+						<tr>
+							<td style="background-color: #fffbeb; padding: 28px 30px; text-align: center; border-top: 2px solid #fde68a;">
+								<p style="margin: 0 0 8px 0; font-size: 12px; color: #92400e; line-height: 1.6; font-family: 'Sono', Arial, sans-serif; font-weight: 500;">
+									This is an automated payment confirmation from MyStay App.<br/>
+									Need help? Contact our support team anytime.
+								</p>
+								<p style="margin: 8px 0 0 0; font-size: 11px; color: #d97706; font-family: 'Sono', Arial, sans-serif; font-weight: 600;">
+									© ${new Date().getFullYear()} MyStay. All rights reserved.
+								</p>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>`;
+}
+
 function escapeHtml(s) {
 	if (s === null || s === undefined) return '';
 	return String(s)
@@ -727,7 +905,7 @@ app.post('/api/v1/email/host/send', async (req, res) => {
 		}
 
 		// Validate email_type
-		const validEmailTypes = ['submitted', 'published', 'rejected', 'verified', 'verification_rejected'];
+		const validEmailTypes = ['submitted', 'published', 'rejected', 'verified', 'verification_rejected', 'promotion_payment'];
 		if (!validEmailTypes.includes(email_type)) {
 			return res.status(400).json({
 				success: false,
@@ -749,6 +927,23 @@ app.post('/api/v1/email/host/send', async (req, res) => {
 				success: false,
 				error: 'verification_rejection_reason is required when email_type is "verification_rejected"'
 			});
+		}
+
+		// Validate promotion_details if email_type is 'promotion_payment'
+		const promotion_details = body.promotion_details;
+		if (email_type === 'promotion_payment') {
+			if (!promotion_details) {
+				return res.status(400).json({
+					success: false,
+					error: 'promotion_details is required when email_type is "promotion_payment"'
+				});
+			}
+			if (!promotion_details.package_name || !promotion_details.amount || !promotion_details.expiry_date) {
+				return res.status(400).json({
+					success: false,
+					error: 'promotion_details must include package_name, amount, and expiry_date'
+				});
+			}
 		}
 
 		let targetEmail = host_email ?? null;
@@ -783,20 +978,29 @@ app.post('/api/v1/email/host/send', async (req, res) => {
 		console.log('Sending host email to:', {
 			email: targetEmail,
 			name: finalHostName || '(no name)',
-			listing_name: listing_name || '(N/A - verification email)',
+			listing_name: listing_name || '(N/A - verification/promotion email)',
 			email_type: email_type,
 			rejection_reason: email_type === 'rejected' ? (rejection_reason || '(not provided)') : '(N/A)',
-			verification_rejection_reason: email_type === 'verification_rejected' ? (verification_rejection_reason || '(not provided)') : '(N/A)'
+			verification_rejection_reason: email_type === 'verification_rejected' ? (verification_rejection_reason || '(not provided)') : '(N/A)',
+			promotion_details: email_type === 'promotion_payment' ? promotion_details : '(N/A)'
 		});
 
 		// Build HTML email
-		const html = buildHostHtml({
-			hostName: finalHostName,
-			listingName: listing_name || '',
-			emailType: email_type,
-			rejectionReason: rejection_reason || null,
-			verificationRejectionReason: verification_rejection_reason || null
-		});
+		let html;
+		if (email_type === 'promotion_payment') {
+			html = buildPromotionPaymentHtml({
+				hostName: finalHostName,
+				promotionDetails: promotion_details
+			});
+		} else {
+			html = buildHostHtml({
+				hostName: finalHostName,
+				listingName: listing_name || '',
+				emailType: email_type,
+				rejectionReason: rejection_reason || null,
+				verificationRejectionReason: verification_rejection_reason || null
+			});
+		}
 
 		// Build plain text version for all email types
 		let subject, text;
@@ -816,6 +1020,10 @@ app.post('/api/v1/email/host/send', async (req, res) => {
 		} else if (email_type === 'verification_rejected') {
 			subject = `Host verification not approved`;
 			text = `Hi ${finalHostName || 'there'},\n\nWe're sorry to inform you that your host verification request was not approved.\n\nReason: ${verification_rejection_reason}\n\nIf you'd like more information or wish to resubmit your verification, please contact our support team.`;
+		} else if (email_type === 'promotion_payment') {
+			const { package_name, amount, duration_months, expiry_date, listings, mpesa_receipt, listings_count } = promotion_details;
+			subject = `Promotion Payment Confirmed - ${package_name} Package`;
+			text = `Hi ${finalHostName || 'there'},\n\nThank you for upgrading to the ${package_name} promotion package!\n\nPayment Details:\n- Package: ${package_name}\n- Amount: KES ${amount}\n- M-Pesa Receipt: ${mpesa_receipt || 'Processing...'}\n- Duration: ${duration_months} month${duration_months > 1 ? 's' : ''}\n- Expires: ${expiry_date}\n- Promoted Listings (${listings_count}): ${listings}\n\nYour listings are now boosted and will receive enhanced visibility. Congratulations!`;
 		}
 
 		// Create transporter
@@ -902,7 +1110,8 @@ app.get('/api/v1/info', (req, res) => {
 			'Booking reference tracking',
 			'Custom messages support',
 			'Host listing submission notifications',
-			'Host listing published notifications'
+			'Host listing published notifications',
+			'Host promotion payment confirmation'
 		]
 	});
 });
